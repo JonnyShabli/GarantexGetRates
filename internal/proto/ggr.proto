@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+//package main;
+
+option go_package = "./ggr";
+
+service ggr {
+  rpc GarantexGetRates (SearchRequest) returns (SearchResponse) {}
+}
+
+message SearchRequest {
+  string pair = 1;
+}
+
+message SearchResponse {
+  base_msg ask = 1;
+  base_msg bid = 2;
+}
+
+message base_msg {
+  float price = 1;
+  float volume = 2;
+  float amount = 3;
+  float factor = 4;
+  string type = 5;
+}
