@@ -1,8 +1,7 @@
-
 services:
   db:
     image: postgres:16.2
-    container_name: ${CONTAINER_NAME}-db
+    container_name: ${CONTAINER_PREFIX}-db
     hostname: db
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
@@ -21,10 +20,10 @@ services:
     restart: unless-stopped
     networks:
       - mylocal
-      -
+
   app:
     build: .
-    container_name: ${CONTAINER_NAME}-app
+    container_name: ${CONTAINER_PREFIX}-app
     hostname: app
     command: ./app
     depends_on:
@@ -34,45 +33,45 @@ services:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
     ports:
-      - "8080:8080"
-    restart: unless-stopped
-    networks:
-      - mylocal
-      -
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus:/etc/prometheus/
-      - "/etc/timezone:/etc/timezone:ro"
-      - "/etc/localtime:/etc/localtime:ro"
-    container_name: ${CONTAINER_NAME}-prometheus
-    hostname: prometheus
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-    depends_on:
-      - app
-    ports:
-      - 9090:9090
+      - "50051:50051"
     restart: unless-stopped
     networks:
       - mylocal
 
-  grafana:
-    image: jonnyshabli/grafana
-    container_name: ${CONTAINER_NAME}-grafana
-    ports:
-      - 3000:3000
-    restart: unless-stopped
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
-      - grafana:/var/lib/grafana
-    networks:
-      - mylocal
-volumes:
-  grafana:
+#  prometheus:
+#    image: prom/prometheus:latest
+#    volumes:
+#      - ./prometheus:/etc/prometheus/
+#      - "/etc/timezone:/etc/timezone:ro"
+#      - "/etc/localtime:/etc/localtime:ro"
+#    container_name: ${CONTAINER_PREFIX}-prometheus
+#    hostname: prometheus
+#    command:
+#      - --config.file=/etc/prometheus/prometheus.yml
+#    depends_on:
+#      - app
+#    ports:
+#      - 9090:9090
+#    restart: unless-stopped
+#    networks:
+#      - mylocal
+#
+#  grafana:
+#    image: jonnyshabli/grafana
+#    container_name: ${CONTAINER_PREFIX}-grafana
+#    ports:
+#      - 3000:3000
+#    restart: unless-stopped
+#    environment:
+#      - GF_SECURITY_ADMIN_USER=admin
+#      - GF_SECURITY_ADMIN_PASSWORD=admin
+#    volumes:
+#      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+#      - grafana:/var/lib/grafana
+#    networks:
+#      - mylocal
+#volumes:
+#  grafana:
 networks:
   mylocal:
     driver: bridge

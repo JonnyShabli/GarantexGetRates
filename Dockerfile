@@ -1,5 +1,5 @@
 # Используем официальный образ Go как базовый
-FROM golang:1.23.2-alpine as builder
+FROM golang:1.23.2-alpine AS builder
 
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /go/src/ggr
@@ -20,6 +20,8 @@ FROM alpine:latest
 COPY --from=builder /app/ /app
 
 COPY .env /
+
+EXPOSE 50051
 
 # Запускаем приложение
 CMD ["/app"]
