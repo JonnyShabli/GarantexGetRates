@@ -2,11 +2,14 @@ package db
 
 import (
 	"database/sql"
+	"log"
+
+	// Запускает миграции.
 	_ "github.com/JonnyShabli/GarantexGetRates/internal/db/migrations"
 	"github.com/jmoiron/sqlx"
+	// драйвер для sqlx.
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
-	"log"
 )
 
 func NewConn(connString string) *sqlx.DB {

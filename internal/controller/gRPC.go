@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+
 	"github.com/JonnyShabli/GarantexGetRates/internal/models"
 	"github.com/JonnyShabli/GarantexGetRates/internal/repository"
 
@@ -20,7 +21,6 @@ type GRPCObj struct {
 	log     *zap.Logger
 	Repo    repository.GgrRepoInterface
 	pb.GgrServer
-	//pb.UnimplementedGgrServer
 }
 
 func NewGRPCObj(log *zap.Logger, repo repository.GgrRepoInterface) *GRPCObj {
@@ -32,7 +32,7 @@ func NewGRPCObj(log *zap.Logger, repo repository.GgrRepoInterface) *GRPCObj {
 }
 
 func (g *GRPCObj) GarantexGetRates(ctx context.Context, req *pb.Request) (*pb.Response, error) {
-	res, err := g.Service.GetRates(ctx, req.Pair)
+	res, err := g.Service.GetRates(ctx, req.GetPair())
 	if err != nil {
 		return nil, fmt.Errorf("get rates: %w", err)
 	}
@@ -49,5 +49,5 @@ func (g *GRPCObj) GarantexGetRates(ctx context.Context, req *pb.Request) (*pb.Re
 		return nil, fmt.Errorf("insert rates: \"%w\"", err)
 	}
 
-	return &pb.Response{Msg: fmt.Sprintf("Succesfuly safe to DB rates for %v", req.Pair)}, nil
+	return &pb.Response{Msg: fmt.Sprintf("Succesfuly safe to DB rates for %v", req.GetPair())}, nil
 }

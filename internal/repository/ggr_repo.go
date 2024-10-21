@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+
 	"github.com/JonnyShabli/GarantexGetRates/internal/models"
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -19,7 +20,6 @@ type GgrRepoObj struct {
 }
 
 func NewGgrRepo(log *zap.Logger, conn *sqlx.DB) GgrRepoInterface {
-
 	return &GgrRepoObj{
 		log: log,
 		db:  conn,

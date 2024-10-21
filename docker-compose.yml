@@ -29,7 +29,6 @@ services:
     depends_on:
       - db
     volumes:
-      - "./swagger:/swagger"
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
     ports:

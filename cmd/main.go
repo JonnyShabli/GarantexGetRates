@@ -4,6 +4,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
+	"net"
+	"os"
+
 	"github.com/JonnyShabli/GarantexGetRates/internal/controller"
 	"github.com/JonnyShabli/GarantexGetRates/internal/db"
 	pb "github.com/JonnyShabli/GarantexGetRates/internal/proto/ggr"
@@ -14,13 +18,9 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"log"
-	"net"
-	"os"
 )
 
 func main() {
-
 	// читаем настройки из файла .env
 	err := godotenv.Load()
 	if err != nil {
@@ -56,6 +56,9 @@ func main() {
 
 	// запускаем миграции БД
 	err = db.InitDB(dbConnString)
+	if err != nil {
+		logger.Fatal("fail to init db miggrations", zap.Error(err))
+	}
 
 	// создаем объект слоя controller - gRPC хэндлер
 	logger.Info("creating grpcHandler object")
@@ -88,5 +91,8 @@ func main() {
 		return grpcServer.Serve(listen)
 	})
 
-	g.Wait()
+	err = g.Wait()
+	if err != nil {
+		logger.Error("wait group error", zap.Error(err))
+	}
 }
