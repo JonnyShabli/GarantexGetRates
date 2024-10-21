@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+//package main;
+
+option go_package = "./ggr";
+
+service ggr {
+  rpc GarantexGetRates (Request) returns (Response) {}
+}
+
+message Request {
+  string pair = 1;
+}
+
+message Response {
+  string msg = 1;
+}
