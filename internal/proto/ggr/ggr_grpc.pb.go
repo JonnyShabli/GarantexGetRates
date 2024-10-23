@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Ggr_GarantexGetRates_FullMethodName = "/ggr/GarantexGetRates"
+	Ggr_GetRates_FullMethodName = "/ggr/GetRates"
 )
 
 // GgrClient is the client API for Ggr service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GgrClient interface {
-	GarantexGetRates(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	GetRates(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 }
 
 type ggrClient struct {
@@ -37,9 +37,9 @@ func NewGgrClient(cc grpc.ClientConnInterface) GgrClient {
 	return &ggrClient{cc}
 }
 
-func (c *ggrClient) GarantexGetRates(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+func (c *ggrClient) GetRates(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
-	err := c.cc.Invoke(ctx, Ggr_GarantexGetRates_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Ggr_GetRates_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *ggrClient) GarantexGetRates(ctx context.Context, in *Request, opts ...g
 // All implementations must embed UnimplementedGgrServer
 // for forward compatibility
 type GgrServer interface {
-	GarantexGetRates(context.Context, *Request) (*Response, error)
+	GetRates(context.Context, *Request) (*Response, error)
 	mustEmbedUnimplementedGgrServer()
 }
 
@@ -58,8 +58,8 @@ type GgrServer interface {
 type UnimplementedGgrServer struct {
 }
 
-func (UnimplementedGgrServer) GarantexGetRates(context.Context, *Request) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GarantexGetRates not implemented")
+func (UnimplementedGgrServer) GetRates(context.Context, *Request) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRates not implemented")
 }
 func (UnimplementedGgrServer) mustEmbedUnimplementedGgrServer() {}
 
@@ -74,20 +74,20 @@ func RegisterGgrServer(s grpc.ServiceRegistrar, srv GgrServer) {
 	s.RegisterService(&Ggr_ServiceDesc, srv)
 }
 
-func _Ggr_GarantexGetRates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Ggr_GetRates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GgrServer).GarantexGetRates(ctx, in)
+		return srv.(GgrServer).GetRates(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Ggr_GarantexGetRates_FullMethodName,
+		FullMethod: Ggr_GetRates_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GgrServer).GarantexGetRates(ctx, req.(*Request))
+		return srv.(GgrServer).GetRates(ctx, req.(*Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,8 +100,8 @@ var Ggr_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GgrServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GarantexGetRates",
-			Handler:    _Ggr_GarantexGetRates_Handler,
+			MethodName: "GetRates",
+			Handler:    _Ggr_GetRates_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

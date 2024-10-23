@@ -14,7 +14,7 @@ import (
 )
 
 type GRPCInterface interface {
-	GarantexGetRates(ctx context.Context, req *pb.Request) (*pb.Response, error)
+	GetRates(ctx context.Context, req *pb.Request) (*pb.Response, error)
 }
 
 type GRPCObj struct {
@@ -34,12 +34,12 @@ func NewGRPCObj(log *zap.Logger, repo repository.GgrRepoInterface, tracer trace.
 	}
 }
 
-func (g *GRPCObj) GarantexGetRates(ctx context.Context, req *pb.Request) (*pb.Response, error) {
+func (g *GRPCObj) GetRates(ctx context.Context, req *pb.Request) (*pb.Response, error) {
 	_, span := g.tracer.Start(ctx, "GetRates")
 	res, err := g.Service.GetRates(ctx, req.GetPair())
 	span.End()
 	if err != nil {
-		return nil, fmt.Errorf("get rates: %w", err)
+		return &pb.Response{Msg: fmt.Sprintf("Bad pair: %v, error: %s", req.GetPair(), err.Error())}, nil
 	}
 
 	dto := models.RatesToDB{

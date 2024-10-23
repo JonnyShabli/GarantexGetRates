@@ -1,15 +1,18 @@
-make build:
-	go build -race -v cmd/main.go
+build:
+	docker build --tag ggr:dev .
+.PHONY: build
 
-make test:
+test:
 	go test ./... -v
+.PHONY: test
 
-make docker-build:
+docker-build:
 	docker build --tag ggr:dev .
 .PHONY: docker-build
 
-make run:
+run:
 	go run -race cmd/main.go
+.PHONY: run
 
 lint:
 	golangci-lint run

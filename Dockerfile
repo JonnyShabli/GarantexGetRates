@@ -21,7 +21,7 @@ COPY --from=builder /app/ /app
 
 COPY .env /
 
-#EXPOSE 50051
+EXPOSE 50051:50051
 EXPOSE 8080:8080
 
 # Запускаем приложение

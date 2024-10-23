@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -34,14 +35,17 @@ func (g *GgrServiceObj) GetRates(ctx context.Context, pair string) (models.Garan
 
 	if err != nil {
 		g.log.Info("error making request")
-		return models.GarantexRates{}, err
+		return models.GarantexRates{}, fmt.Errorf("error making request: %w", err)
 	}
 	var rates models.GarantexRates
 	err = json.NewDecoder(resp.Body).Decode(&rates)
 	if err != nil {
 		g.log.Info("error decode response")
-		return models.GarantexRates{}, err
+		return models.GarantexRates{}, fmt.Errorf("json decode error: %w", err)
 	}
-
+	if rates.Timestamp == 0 {
+		g.log.Info("no rates found")
+		return models.GarantexRates{}, errors.New("no rates found")
+	}
 	return rates, nil
 }

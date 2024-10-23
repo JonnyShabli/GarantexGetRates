@@ -71,7 +71,7 @@ func main() {
 	// запускаем миграции БД
 	err = db.InitDB(dbConnString)
 	if err != nil {
-		logger.Fatal("fail to init db miggrations", zap.Error(err))
+		logger.Fatal("fail to init db migrations", zap.Error(err))
 	}
 
 	// создаем объект слоя controller - gRPC хэндлер

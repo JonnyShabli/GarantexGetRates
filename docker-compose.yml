@@ -40,9 +40,12 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one
+    hostname: jaeger
     ports:
       - "14268:14268"
       - "16686:16686"
+    networks:
+      - mylocal
 
 networks:
   mylocal:
