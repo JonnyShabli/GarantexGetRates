@@ -5,7 +5,7 @@ syntax = "proto3";
 option go_package = "./ggr";
 
 service ggr {
-  rpc GarantexGetRates (Request) returns (Response) {}
+  rpc GetRates (Request) returns (Response) {}
 }
 
 message Request {

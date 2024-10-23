@@ -33,44 +33,20 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     ports:
       - "50051:50051"
+      - "8080:8080"
     restart: unless-stopped
     networks:
       - mylocal
 
-#  prometheus:
-#    image: prom/prometheus:latest
-#    volumes:
-#      - ./prometheus:/etc/prometheus/
-#      - "/etc/timezone:/etc/timezone:ro"
-#      - "/etc/localtime:/etc/localtime:ro"
-#    container_name: ${CONTAINER_PREFIX}-prometheus
-#    hostname: prometheus
-#    command:
-#      - --config.file=/etc/prometheus/prometheus.yml
-#    depends_on:
-#      - app
-#    ports:
-#      - 9090:9090
-#    restart: unless-stopped
-#    networks:
-#      - mylocal
-#
-#  grafana:
-#    image: jonnyshabli/grafana
-#    container_name: ${CONTAINER_PREFIX}-grafana
-#    ports:
-#      - 3000:3000
-#    restart: unless-stopped
-#    environment:
-#      - GF_SECURITY_ADMIN_USER=admin
-#      - GF_SECURITY_ADMIN_PASSWORD=admin
-#    volumes:
-#      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
-#      - grafana:/var/lib/grafana
-#    networks:
-#      - mylocal
-#volumes:
-#  grafana:
+  jaeger:
+    image: jaegertracing/all-in-one
+    hostname: jaeger
+    ports:
+      - "14268:14268"
+      - "16686:16686"
+    networks:
+      - mylocal
+
 networks:
   mylocal:
     driver: bridge

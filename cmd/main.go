@@ -2,18 +2,26 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 
 	"github.com/JonnyShabli/GarantexGetRates/internal/controller"
 	"github.com/JonnyShabli/GarantexGetRates/internal/db"
+	"github.com/JonnyShabli/GarantexGetRates/internal/pkg/health"
+	pkghttp "github.com/JonnyShabli/GarantexGetRates/internal/pkg/http"
+	"github.com/JonnyShabli/GarantexGetRates/internal/pkg/sig"
+	"github.com/JonnyShabli/GarantexGetRates/internal/pkg/tracer"
 	pb "github.com/JonnyShabli/GarantexGetRates/internal/proto/ggr"
 	"github.com/JonnyShabli/GarantexGetRates/internal/repository"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -33,7 +41,7 @@ func main() {
 	flag.Parse()
 
 	// Создаем errgroup и контекст
-	g, _ := errgroup.WithContext(context.Background())
+	g, ctx := errgroup.WithContext(context.Background())
 
 	// Создаем логгер
 	logger, err := zap.NewDevelopment()
@@ -41,6 +49,12 @@ func main() {
 		log.Fatal("fail to make logger", err)
 	}
 	defer func() { _ = logger.Sync() }()
+
+	// Создаем OpenTelemetry tracer
+	traceMgr, err := tracer.InitTracer(os.Getenv("TRACE_ADDR"), "GGR Service")
+	if err != nil {
+		logger.Fatal("fail to init tracer", zap.Error(err))
+	}
 
 	// создаем объект слоя репозиторий SQL DB
 	if dbConnString == "" {
@@ -57,12 +71,12 @@ func main() {
 	// запускаем миграции БД
 	err = db.InitDB(dbConnString)
 	if err != nil {
-		logger.Fatal("fail to init db miggrations", zap.Error(err))
+		logger.Fatal("fail to init db migrations", zap.Error(err))
 	}
 
 	// создаем объект слоя controller - gRPC хэндлер
 	logger.Info("creating grpcHandler object")
-	grpcHandler := controller.NewGRPCObj(logger, storage)
+	grpcHandler := controller.NewGRPCObj(logger, storage, traceMgr)
 
 	// создаем и настраиваем gRPC сервер
 	logger.Info("creating grpcSever object")
@@ -88,11 +102,42 @@ func main() {
 			logger.Fatal("error listen :"+connString, zap.String("error", err.Error()))
 		}
 
-		return grpcServer.Serve(listen)
+		errListen := make(chan error, 1)
+		go func() {
+			errListen <- grpcServer.Serve(listen)
+		}()
+
+		select {
+		case <-ctx.Done():
+			grpcServer.GracefulStop()
+			return nil
+		case err = <-errListen:
+			return fmt.Errorf("can't run grpc server: %w", err)
+		}
 	})
 
+	// Ждем сигналы ОС для завершения работы
+	g.Go(func() error { return sig.ListenSignal(ctx, logger) })
+
+	// metrics.
+	registry := prometheus.NewRegistry()
+	registerer := prometheus.WrapRegistererWith(prometheus.Labels{"go_project": "ggr"}, registry)
+	registerer.MustRegister(
+		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+		collectors.NewGoCollector(),
+	)
+
+	techHandler := pkghttp.NewHandler("/", pkghttp.DefaultTechOptions(registry))
+
+	// Запускаем http сервер
+	g.Go(func() error {
+		return pkghttp.RunServer(ctx, os.Getenv("HTTP_PRIVATE_ADDR"), logger, techHandler)
+	})
+
+	health.SetStatus(http.StatusOK)
+	logger.Info("Waiting for signal")
 	err = g.Wait()
-	if err != nil {
-		logger.Error("wait group error", zap.Error(err))
+	if err != nil && !errors.Is(err, sig.ErrSignalReceived) {
+		logger.With(zap.String("Exit reason", err.Error()))
 	}
 }
