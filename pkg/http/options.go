@@ -3,7 +3,7 @@ package http
 import (
 	"log"
 
-	"github.com/JonnyShabli/GarantexGetRates/internal/pkg/health"
+	"github.com/JonnyShabli/GarantexGetRates/pkg/health"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/prometheus/client_golang/prometheus"

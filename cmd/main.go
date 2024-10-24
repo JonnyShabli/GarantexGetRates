@@ -12,12 +12,12 @@ import (
 
 	"github.com/JonnyShabli/GarantexGetRates/internal/controller"
 	"github.com/JonnyShabli/GarantexGetRates/internal/db"
-	"github.com/JonnyShabli/GarantexGetRates/internal/pkg/health"
-	pkghttp "github.com/JonnyShabli/GarantexGetRates/internal/pkg/http"
-	"github.com/JonnyShabli/GarantexGetRates/internal/pkg/sig"
-	"github.com/JonnyShabli/GarantexGetRates/internal/pkg/tracer"
 	pb "github.com/JonnyShabli/GarantexGetRates/internal/proto/ggr"
 	"github.com/JonnyShabli/GarantexGetRates/internal/repository"
+	"github.com/JonnyShabli/GarantexGetRates/pkg/health"
+	http2 "github.com/JonnyShabli/GarantexGetRates/pkg/http"
+	"github.com/JonnyShabli/GarantexGetRates/pkg/sig"
+	"github.com/JonnyShabli/GarantexGetRates/pkg/tracer"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus"
@@ -127,11 +127,11 @@ func main() {
 		collectors.NewGoCollector(),
 	)
 
-	techHandler := pkghttp.NewHandler("/", pkghttp.DefaultTechOptions(registry))
+	techHandler := http2.NewHandler("/", http2.DefaultTechOptions(registry))
 
 	// Запускаем http сервер
 	g.Go(func() error {
-		return pkghttp.RunServer(ctx, os.Getenv("HTTP_PRIVATE_ADDR"), logger, techHandler)
+		return http2.RunServer(ctx, os.Getenv("HTTP_PRIVATE_ADDR"), logger, techHandler)
 	})
 
 	health.SetStatus(http.StatusOK)
