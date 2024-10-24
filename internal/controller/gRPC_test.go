@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/JonnyShabli/GarantexGetRates/internal/models"
-	"github.com/JonnyShabli/GarantexGetRates/internal/pkg/tracer"
 	pb "github.com/JonnyShabli/GarantexGetRates/internal/proto/ggr"
 	"github.com/JonnyShabli/GarantexGetRates/internal/repository/mock_repo"
+	"github.com/JonnyShabli/GarantexGetRates/pkg/tracer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
