@@ -15,7 +15,7 @@ import (
 	pb "github.com/JonnyShabli/GarantexGetRates/internal/proto/ggr"
 	"github.com/JonnyShabli/GarantexGetRates/internal/repository"
 	"github.com/JonnyShabli/GarantexGetRates/pkg/health"
-	http2 "github.com/JonnyShabli/GarantexGetRates/pkg/http"
+	pkghttp "github.com/JonnyShabli/GarantexGetRates/pkg/http"
 	"github.com/JonnyShabli/GarantexGetRates/pkg/sig"
 	"github.com/JonnyShabli/GarantexGetRates/pkg/tracer"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -127,11 +127,11 @@ func main() {
 		collectors.NewGoCollector(),
 	)
 
-	techHandler := http2.NewHandler("/", http2.DefaultTechOptions(registry))
+	techHandler := pkghttp.NewHandler("/", pkghttp.DefaultTechOptions(registry))
 
 	// Запускаем http сервер
 	g.Go(func() error {
-		return http2.RunServer(ctx, os.Getenv("HTTP_PRIVATE_ADDR"), logger, techHandler)
+		return pkghttp.RunServer(ctx, os.Getenv("HTTP_PRIVATE_ADDR"), logger, techHandler)
 	})
 
 	health.SetStatus(http.StatusOK)
